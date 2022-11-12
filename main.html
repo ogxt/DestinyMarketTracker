@@ -37,7 +37,7 @@
         }
         .currentMarkets {
             padding-left: 15px;
-            padding-top: 80px;
+            padding-top: 60px;
         }
 
         .noselect {
@@ -58,6 +58,15 @@
         }
     </style>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XX3YRT498Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-XX3YRT498Y');
+</script>
 <body>
     <div class="markets">
         <div class="container" style="width:100%;height:85px;padding-top:2vh;">
@@ -75,17 +84,6 @@
         </ul>
     </div>
     <div class="tracker"></div>
-	
-	<!-- Google tag (gtag.js) -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-XX3YRT498Y"></script>
-	<script>
-  		window.dataLayer = window.dataLayer || [];
-  		function gtag(){dataLayer.push(arguments);}
-  		gtag('js', new Date());
-	
-  		gtag('config', 'G-XX3YRT498Y');
-	</script>
-
     <script>
         let currentMarkets = new Map();
 
