@@ -28,6 +28,12 @@ class Market {
             n = n.join(' ');
         }
 
+        if (n.includes(" Stock")) {
+            this.title = n.replace(" Stock", "");
+        } else {
+            this.title = n;
+        }
+
         this.name = n
         this.id = market.id;
         this.color = util.getColor(this.id);
@@ -65,7 +71,6 @@ module.exports.getDggMarkets = async function(){
             let _market = new Market(market);
             if(names.indexOf(_market.name.toUpperCase()) > -1)
                 return;
-
             names.push(_market.name.toUpperCase());
             markets.set(market.id, _market);
         }
