@@ -107,7 +107,7 @@
                 </a>
               
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink"></div>
-                <p>Powered by : <a target="_blank" href="https://manifold.markets/memestiny">https://manifold.markets/memestiny</a><br>Created by : <a target="_blank" href="https://www.youtube.com/embed/rRPQs_kM_nw?autoplay=1">legolas</a> + <a href="https://i.kym-cdn.com/photos/images/newsfeed/001/207/210/b22.jpg">blerch</a></p>
+                <p>Stocks from : <br>- <a target="_blank" href="https://manifold.markets/memestiny">https://manifold.markets/memestiny</a><br>- <a target="_blank" href="https://manifold.markets/Cooley">https://manifold.markets/Cooley</a><br>Created by : <a target="_blank" href="https://www.youtube.com/embed/rRPQs_kM_nw?autoplay=1">legolas</a> + <a href="https://i.kym-cdn.com/photos/images/newsfeed/001/207/210/b22.jpg">blerch</a></p>
             </div>
         </div>
         <ul class="currentMarkets">
@@ -130,7 +130,7 @@
             let markets = await fetch("https://manifold.markets/api/v0/group/by-id/W2ES30fRo6CCbPNwMTTj/markets").then(_=>_.json())
 
             markets = markets.filter(market=>{
-                return ( market.creatorId == "lQdCwuc1OrZLUqgA4EwjPSSwG5Z2" && market.question.includes("(Permanent)") )
+                return ( market.creatorId == "lQdCwuc1OrZLUqgA4EwjPSSwG5Z2" && market.question.includes("(Permanent)") ) || ( market.creatorId == "GgEwiiBGdmUrMJhqIOnH2rGCSSt1" && market.question.includes("(Permanent)") )
             })
 
             markets = markets.map(market => {
