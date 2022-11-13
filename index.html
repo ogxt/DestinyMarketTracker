@@ -96,6 +96,7 @@
     <div class="tracker"></div>
     <script>
         let currentMarkets = new Map();
+        let allMarkets = new Map();
 
         function generateRandomColorRgba() {
             const red = Math.floor(Math.random() * (256 - 100) + 100);
@@ -115,8 +116,13 @@
                 return {
                     name : market.question.replace("(Permanent)",""),
                     id : market.id,
-                    color : generateRandomColorRgba()
+                    color : generateRandomColorRgba(),
+                    price : 0
                 }
+            })
+
+            markets.forEach(market => {
+                allMarkets.set(market.id, market)
             })
             return markets
         }
@@ -180,6 +186,7 @@
 
                 let marketHolder = document.createElement("li");
                 marketHolder.id = `market-holder-${getTicker(market.name)}`;// Blerch
+                marketHolder.dataset.id = market.id
                 marketHolder.style = `
                     display:none;
                     color:white;
@@ -229,11 +236,24 @@
             setInterval(async () => {
                 currentMarkets.forEach(async (market) => {
                     let price = await getPrice(market.id);
+                    market.price = price;
                     market.series.update({
                         time : Date.now(),
                         value : price
                     })
+                    allMarkets.set(market.id, market)
                 })
+                
+                // sorting
+                let newList = document.querySelector(".currentMarkets").cloneNode(false);
+                let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
+                currentMarketList.sort((a,b) => {
+                    return allMarkets.get(b.dataset.id).price - allMarkets.get(a.dataset.id).price
+                })
+                for(var i = 0; i < currentMarketList.length; i++)
+                    newList.appendChild(currentMarketList[i]);
+                document.querySelector(".currentMarkets").parentNode.replaceChild(newList, document.querySelector(".currentMarkets"))
+
             }, 250);
 
             // Blerch
