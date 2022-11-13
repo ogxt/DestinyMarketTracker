@@ -49,16 +49,26 @@ new ResizeObserver(entries => {
 
 (async()=>{
     allMarkets = await Manifold.getDggMarkets();
-    allMarkets.forEach(market => {
+    let arr = [...allMarkets.values()];
+    arr.sort((a, b) => { 
+        if(a.name.toUpperCase() < b.name.toUpperCase())
+            return -1;
+
+        if(a.name.toUpperCase() > b.name.toUpperCase())
+            return 1;
+
+        return 0;
+    });
+    arr.forEach(market => {
 
         let dropdown = document.createElement("a")
         dropdown.className = "dropdown-item stock-ticker"
-        dropdown.dataset.ticker = getTicker(market.name) // Blerch
+        dropdown.dataset.ticker = getTicker(market.name, undefined, true) // Blerch
         dropdown.innerHTML = market.name
         dropdown.href = "#"
     
         let marketHolder = document.createElement("li");
-        marketHolder.id = `market-holder-${getTicker(market.name)}`;// Blerch
+        marketHolder.id = `market-holder-${getTicker(market.name, undefined, true)}`;// Blerch
         marketHolder.dataset.id = market.id
         marketHolder.style = `
             display:none;
@@ -89,20 +99,9 @@ new ResizeObserver(entries => {
     
         dropdown.onclick = () => {
             if(currentMarkets.has(market.id)){
-                currentMarkets.delete(market.id);
-                marketHolder.style.display = "none";
-                dropdown.classList.remove("active")
-                chart.removeSeries(market.series)
+                removeStockFromChart(market);
             }else{
-                currentMarkets.set(market.id, market)
-                marketHolder.style.display = "table";
-                dropdown.classList.add("active")
-                market.series = chart.addAreaSeries({
-                  topColor: 'rgba(0, 0, 0, 0)',
-                  bottomColor: 'rgba(0, 0, 0, 0)',
-                  lineColor: market.color.rgb().string(),
-                  lineWidth: 2,
-                });
+                addStockToChart(market);
             }
         }
         marketEl.onmouseover  = () => {
@@ -161,12 +160,16 @@ new ResizeObserver(entries => {
 
 // #region Blerch
 
-let market_string = window.location.hash;
-if(market_string.indexOf('#') === 0)
-    market_string = market_string.substring(1);
-
-let markets = market_string.split('+');
+let markets = [];
 let supportedMarkets = new Map();
+const getHash = (hash = window.location.hash) => {
+    if(hash.indexOf('#') === 0)
+        hash = hash.substring(1);
+
+    markets = hash.split('+');
+}
+
+getHash();
 
 /**
  * 
@@ -174,11 +177,15 @@ let supportedMarkets = new Map();
  * @param {number} length 
  * @returns {string} Ticker
  */
-const getTicker = (name, length = 3) => {
+const getTicker = (name, length = 3, allow_exsiting = false) => {
+    if(name.indexOf('$') === 0)
+        name = name.substring(1);
+
     let n = name.substr(0, length).trim();
-    if(supportedMarkets.has(n)) {
+    if(supportedMarkets.has(n) && !allow_exsiting) {
         return getTicker(name, length + 1);
     } else {
+        //console.log(name, n);
         return n.toUpperCase();
     }
 }
@@ -189,6 +196,7 @@ const setTickerAssociation = (output) => {
         supportedMarkets.set(ticker, output[i]);
     }
 
+    //console.log(supportedMarkets);
     addStockByTicker(...markets);
 }
 
@@ -213,28 +221,39 @@ const addStockByTicker = (...tickers) => {
         if(market == undefined)
             return;
 
-        let marketHolder = document.getElementById(`market-holder-${getTicker(market.name)}`);
         if(currentMarkets.has(market.id)){
-            currentMarkets.delete(market.id);
-            marketHolder.style.display = "none";
-            let el = document.querySelector(`[data-ticker='${getTicker(market.name)}']`)
-            el.classList.remove("active")
-            chart.removeSeries(market.series)
+            removeStockFromChart(market);
         } else {
-            currentMarkets.set(market.id, market)
-            marketHolder.style.display = "table";
-            let el = document.querySelector(`[data-ticker='${getTicker(market.name)}']`)
-            el.classList.add("active")
-            market.series = chart.addAreaSeries({
-                topColor: 'rgba(0, 0, 0, 0)',
-                bottomColor: 'rgba(0, 0, 0, 0)',
-                lineColor: market.color.rgb().string(),
-                lineWidth: 2,
-                symbol : market.name
-            });
+            addStockToChart(market);
         }
     });
 }
+
+const removeStockFromChart = (market) => {
+    currentMarkets.delete(market.id);
+    let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
+    marketHolder.style.display = "none";
+    let dropdownElement = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`);
+    dropdownElement.classList.remove("active");
+    chart.removeSeries(market.series);
+}
+
+const addStockToChart = (market) => {
+    currentMarkets.set(market.id, market);
+    let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
+    marketHolder.style.display = "table";
+    let dropdownElement = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`);
+    dropdownElement.classList.add("active");
+    market.series = chart.addAreaSeries({
+        topColor: 'rgba(0, 0, 0, 0)',
+        bottomColor: 'rgba(0, 0, 0, 0)',
+        lineColor: market.color.rgb().string(),
+        lineWidth: 2,
+        symbol : market.name,
+        title: market.title
+    });
+}
+
 
 const addTickerEventListener = () => {
     let elems = [...document.getElementsByClassName('stock-ticker')];
@@ -255,6 +274,12 @@ const addTickerEventListener = () => {
             addStockByTicker(...e.state.markets.split('+'));
         }
     }
+
+    addEventListener('hashchange', (e) => {
+        clearStocks();
+        getHash();
+        addStockByTicker(...markets);
+    });
 }
 
 

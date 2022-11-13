@@ -21,7 +21,20 @@ class Market {
      * @param {object} market - The market object from manifold api.
      */
     constructor(market){
-        this.name = market.question.replace("(Permanent)","");
+        let n = market.question.replace("(Permanent)","");
+        if(n.indexOf('$') === 0) {
+            n = n.split(' ');
+            n.shift();
+            n = n.join(' ');
+        }
+
+        if (n.includes(" Stock")) {
+            this.title = n.replace(" Stock", "");
+        } else {
+            this.title = n;
+        }
+
+        this.name = n
         this.id = market.id;
         this.color = util.getColor(this.id);
         this.initalize();
@@ -49,12 +62,19 @@ module.exports.getDggMarkets = async function(){
     let markets = new Map();
 
     // get markets from destiny group
-    (await module.exports.getMarketsFromGroup("W2ES30fRo6CCbPNwMTTj")).forEach(market => {
+    let arr = await module.exports.getMarketsFromGroup("W2ES30fRo6CCbPNwMTTj");
+    let names = [];
+
+    arr.forEach(market => {
         // checks if memestiny or coolio made the market and if its permanent 
         if ( (market.creatorId == "lQdCwuc1OrZLUqgA4EwjPSSwG5Z2" || market.creatorId == "GgEwiiBGdmUrMJhqIOnH2rGCSSt1") && market.question.includes("(Permanent)") ){
-            markets.set(market.id, new Market(market))
+            let _market = new Market(market);
+            if(names.indexOf(_market.name.toUpperCase()) > -1)
+                return;
+            names.push(_market.name.toUpperCase());
+            markets.set(market.id, _market);
         }
-    })
+    });
 
     return markets;
 }
