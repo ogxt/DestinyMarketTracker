@@ -373,12 +373,14 @@
                 if(currentMarkets.has(market.id)){
                     currentMarkets.delete(market.id);
                     marketHolder.style.display = "none";
-                    //el.classList.remove("active")
+                    let el = document.querySelector(`[data-ticker='${getTicker(market.name)}']`)
+                    el.classList.remove("active")
                     chart.removeSeries(market.series)
                 } else {
                     currentMarkets.set(market.id, market)
                     marketHolder.style.display = "table";
-                    //el.classList.add("active")
+                    let el = document.querySelector(`[data-ticker='${getTicker(market.name)}']`)
+                    el.classList.add("active")
                     market.series = chart.addAreaSeries({
                         topColor: 'rgba(0, 0, 0, 0)',
                         bottomColor: 'rgba(0, 0, 0, 0)',
