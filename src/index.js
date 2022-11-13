@@ -99,20 +99,9 @@ new ResizeObserver(entries => {
     
         dropdown.onclick = () => {
             if(currentMarkets.has(market.id)){
-                currentMarkets.delete(market.id);
-                marketHolder.style.display = "none";
-                dropdown.classList.remove("active")
-                chart.removeSeries(market.series)
+                removeStockFromChart(market);
             }else{
-                currentMarkets.set(market.id, market)
-                marketHolder.style.display = "table";
-                dropdown.classList.add("active")
-                market.series = chart.addAreaSeries({
-                  topColor: 'rgba(0, 0, 0, 0)',
-                  bottomColor: 'rgba(0, 0, 0, 0)',
-                  lineColor: market.color.rgb().string(),
-                  lineWidth: 2,
-                });
+                addStockToChart(market);
             }
         }
         marketEl.onmouseover  = () => {
@@ -232,28 +221,39 @@ const addStockByTicker = (...tickers) => {
         if(market == undefined)
             return;
 
-        let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
         if(currentMarkets.has(market.id)){
-            currentMarkets.delete(market.id);
-            marketHolder.style.display = "none";
-            let el = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`)
-            el.classList.remove("active")
-            chart.removeSeries(market.series)
+            removeStockFromChart(market);
         } else {
-            currentMarkets.set(market.id, market)
-            marketHolder.style.display = "table";
-            let el = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`)
-            el.classList.add("active")
-            market.series = chart.addAreaSeries({
-                topColor: 'rgba(0, 0, 0, 0)',
-                bottomColor: 'rgba(0, 0, 0, 0)',
-                lineColor: market.color.rgb().string(),
-                lineWidth: 2,
-                symbol : market.name
-            });
+            addStockToChart(market);
         }
     });
 }
+
+const removeStockFromChart = (market) => {
+    currentMarkets.delete(market.id);
+    let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
+    marketHolder.style.display = "none";
+    let dropdownElement = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`);
+    dropdownElement.classList.remove("active");
+    chart.removeSeries(market.series);
+}
+
+const addStockToChart = (market) => {
+    currentMarkets.set(market.id, market);
+    let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
+    marketHolder.style.display = "table";
+    let dropdownElement = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`);
+    dropdownElement.classList.add("active");
+    market.series = chart.addAreaSeries({
+        topColor: 'rgba(0, 0, 0, 0)',
+        bottomColor: 'rgba(0, 0, 0, 0)',
+        lineColor: market.color.rgb().string(),
+        lineWidth: 2,
+        symbol : market.name,
+        title: market.title
+    });
+}
+
 
 const addTickerEventListener = () => {
     let elems = [...document.getElementsByClassName('stock-ticker')];
