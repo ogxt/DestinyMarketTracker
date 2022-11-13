@@ -49,7 +49,17 @@ new ResizeObserver(entries => {
 
 (async()=>{
     allMarkets = await Manifold.getDggMarkets();
-    allMarkets.forEach(market => {
+    let arr = [...allMarkets.values()];
+    arr.sort((a, b) => { 
+        if(a.name.toUpperCase() < b.name.toUpperCase())
+            return -1;
+
+        if(a.name.toUpperCase() > b.name.toUpperCase())
+            return 1;
+
+        return 0;
+    });
+    arr.forEach(market => {
 
         let dropdown = document.createElement("a")
         dropdown.className = "dropdown-item stock-ticker"
