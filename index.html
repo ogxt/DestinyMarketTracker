@@ -43,6 +43,26 @@
             padding-top: 60px;
         }
 
+        .floating-tooltip-2 {
+        	width: 96px;
+        	height: 80px;
+        	position: absolute;
+        	display: none;
+        	padding: 8px;
+        	box-sizing: border-box;
+        	font-size: 12px;
+        	color: #131722;
+        	background-color: rgba(255, 255, 255, 1);
+        	text-align: left;
+        	z-index: 1000;
+        	top: 12px;
+        	left: 12px;
+        	pointer-events: none;
+        	border: 1px solid rgba(255, 70, 70, 1);
+        	border-radius: 2px;
+        }
+
+
         .noselect {
           -webkit-touch-callout: none; /* iOS Safari */
             -webkit-user-select: none; /* Safari */
@@ -99,10 +119,10 @@
         let allMarkets = new Map();
 
         function generateRandomColorRgba() {
-            const red = Math.floor(Math.random() * (256 - 100) + 100);
-            const green = Math.floor(Math.random() *  (256 - 100) + 100);
-            const blue = Math.floor(Math.random() *  (256 - 100) + 100);
-            return "rgba(" + red + ", " + green + ", " + blue + ", .95)";
+            const red = Math.floor(Math.random() * (225 - 100) + 100);
+            const green = Math.floor(Math.random() *  (225 - 100) + 100);
+            const blue = Math.floor(Math.random() *  (225 - 100) + 100);
+            return {red, green, blue}
         }           
 
         async function getMarkets(){
@@ -113,10 +133,12 @@
             })
 
             markets = markets.map(market => {
+                let color = generateRandomColorRgba();
                 return {
                     name : market.question.replace("(Permanent)",""),
                     id : market.id,
-                    color : generateRandomColorRgba(),
+                    color : color,
+                    colorText : `rgba(${color.red}, ${color.green}, ${color.blue}, .95)`,
                     price : 0
                 }
             })
@@ -146,7 +168,12 @@
 	            		textColor: '#D9D9D9',
 	            },
 	            watermark: {
-	            	color: 'rgba(0, 0, 0, 0)',
+		            visible: true,
+		            fontSize: 65,
+		            horzAlign: 'center',
+		            vertAlign: 'center',
+		            color: 'rgba(64, 64, 64, .6)',
+		            text: 'DGG.EXCHANGE',
 	            },
 	            crosshair: {
 	            	color: '#758696',
@@ -163,7 +190,7 @@
 		            visible: false,
 	            },
             }
-        );
+        ); 
 
         new ResizeObserver(entries => {
             if (entries.length === 0 || entries[0].target !== document.querySelector(".tracker")) { return; }
@@ -202,7 +229,7 @@
                     margin-bottom: 2px;
                     width: 12px; 
                     height: 12px;
-                    background-color : ${market.color};
+                    background-color : ${market.colorText};
                     border-radius : 10px;
                     display:inline-block;
                     vertical-align:middle;
@@ -225,25 +252,52 @@
                         market.series = chart.addAreaSeries({
                           topColor: 'rgba(0, 0, 0, 0)',
                           bottomColor: 'rgba(0, 0, 0, 0)',
-                          lineColor: market.color,
+                          lineColor: market.colorText,
                           lineWidth: 2,
                         });
+                        window.test = market.series
                     }
                 }
+
+                marketEl.onmouseover  = () => {
+                    if (market.series){
+                        market.series.applyOptions({
+                            topColor: 'rgba(0, 0, 0, 0)',
+                            bottomColor: 'rgba(0, 0, 0, 0)',
+                            lineColor: `rgba(${market.color.red + 30}, ${market.color.green + 30}, ${market.color.blue + 30}, .95)`,
+                            lineWidth: 5,
+                        })
+                    }
+                }
+
+                marketEl.onmouseout  = () => {
+                    if (market.series){
+                        market.series.applyOptions({
+                            topColor: 'rgba(0, 0, 0, 0)',
+                            bottomColor: 'rgba(0, 0, 0, 0)',
+                            lineColor: market.colorText,
+                            lineWidth: 2,
+                        })  
+                    }
+                    
+                }
+
                 dropdownMenu.appendChild(el)
             });
 
             setInterval(async () => {
                 currentMarkets.forEach(async (market) => {
-                    let price = await getPrice(market.id);
-                    market.price = price;
-                    market.series.update({
-                        time : Date.now(),
-                        value : price
-                    })
-                    allMarkets.set(market.id, market)
+                    if(market.series){
+                        let price = await getPrice(market.id);
+                        market.price = price;
+                        market.series.update({
+                            time : Date.now(),
+                            value : price
+                        })
+                        allMarkets.set(market.id, market)
+                    }
                 })
-                
+
                 // sorting
                 let newList = document.querySelector(".currentMarkets").cloneNode(false);
                 let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
@@ -261,6 +315,8 @@
             setTickerAssociation(markets); 
 
         })();
+
+        
 
         //#region Blerch
 
@@ -326,8 +382,9 @@
                     market.series = chart.addAreaSeries({
                         topColor: 'rgba(0, 0, 0, 0)',
                         bottomColor: 'rgba(0, 0, 0, 0)',
-                        lineColor: market.color,
+                        lineColor: market.colorText,
                         lineWidth: 2,
+                        symbol : market.name
                     });
                 }
             });
