@@ -8,12 +8,30 @@ module.exports.getMarketsFromGroup = async function(GroupId) {
     return await fetch(`https://manifold.markets/api/v0/group/by-id/${GroupId}/markets`).then(_=>_.json())
 }
 /**
+ * Gets market from api 
+ * @param {String} marketId he id of the manifold market
+ * @returns {object} manifold market
+ */
+module.exports.getMarket = async function(marketId){
+    return (await fetch(`https://manifold.markets/api/v0/market/${marketId}`).then(_=>_.json()));
+}
+/**
+ * Gets History of market.
+ * @param {string} marketId The id of the manifold market
+ * @return {array} Market price history
+ */
+ module.exports.getHistory = async function(marketId) {
+    let market = await module.exports.getMarket(marketId);
+    return market.bets
+}
+/**
  * Gets Probability of market.
  * @param {string} marketId The id of the manifold market
  * @return {number} Current market probability
  */
 module.exports.getProbability = async function(marketId) {
-    return (await fetch(`https://manifold.markets/api/v0/market/${marketId}`).then(_=>_.json())).probability * 100
+    let market = await module.exports.getMarket(marketId);
+    return market.probability * 100
 }
 /** Market Class */
 class Market {
@@ -45,6 +63,14 @@ class Market {
      */
     async initalize(){
         this.price = await this.getPrice()
+        this.history = await this.getHistory()
+    }
+    /**
+     * Gets the price history of the market
+     * @return {Array} Price history of the market
+     */
+     async getHistory(){
+        return await module.exports.getHistory(this.id)
     }
     /**
      * Gets the price of the market
