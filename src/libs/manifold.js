@@ -1,4 +1,5 @@
-const util = require("./util");
+const Util = require("./util");
+const Config = require("../config")
 /**
  * Gets all markets in a group.
  * @param {string} GroupId The id of the manifold group
@@ -54,7 +55,7 @@ class Market {
 
         this.name = n
         this.id = market.id;
-        this.color = util.getColor(this.id);
+        this.color = Util.getColor(this.id);
         this.initalize();
     }
 
@@ -88,18 +89,19 @@ module.exports.getDggMarkets = async function(){
     let markets = new Map();
 
     // get markets from destiny group
-    let arr = await module.exports.getMarketsFromGroup("W2ES30fRo6CCbPNwMTTj");
+    let marketList = await module.exports.getMarketsFromGroup("W2ES30fRo6CCbPNwMTTj");
     let names = [];
 
-    arr.forEach(market => {
-        // checks if memestiny or coolio made the market and if its permanent 
-        if ( (market.creatorId == "lQdCwuc1OrZLUqgA4EwjPSSwG5Z2" || market.creatorId == "GgEwiiBGdmUrMJhqIOnH2rGCSSt1") && market.question.includes("(Permanent)") ){
-            let _market = new Market(market);
-            if(names.indexOf(_market.name.toUpperCase()) > -1)
-                return;
-            names.push(_market.name.toUpperCase());
-            markets.set(market.id, _market);
-        }
+    marketList.forEach(market => {
+        Config.creators.forEach(creator => {
+            if (market.creatorId == creator.id && market.question.includes("(Permanent)")){
+                let _market = new Market(market);
+                if(names.indexOf(_market.name.toUpperCase()) > -1)
+                    return;
+                names.push(_market.name.toUpperCase());
+                markets.set(market.id, _market);
+            }
+        })
     });
 
     return markets;

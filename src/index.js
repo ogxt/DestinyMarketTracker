@@ -8,6 +8,7 @@ let allMarkets = new Map();
 
 let dropdownMenu = document.querySelector(".dropdown-menu");
 let currentMarketHolder = document.querySelector(".currentMarkets");
+let creditHolder = document.querySelector(".credits")
 
 const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
     {
@@ -46,6 +47,30 @@ new ResizeObserver(entries => {
         const newRect = entries[0].contentRect;
         chart.applyOptions({ height: newRect.height, width: newRect.width });
 }).observe(document.querySelector(".tracker"));
+
+creditHolder.innerHTML += "Stocks from : <br>"
+Config.creators.forEach(creator => {
+    creditHolder.innerHTML += "- ";
+    let tag = document.createElement("a");
+    tag.target = "_blank";
+    let url =  "https://manifold.markets/" + creator.username;
+    tag.href = url;
+    tag.innerHTML = url;
+    creditHolder.appendChild(tag);
+    creditHolder.innerHTML += "<br>"
+});
+
+creditHolder.innerHTML += "<br>Created by : "
+Config.contributors.forEach((contributor, index) => {
+    let tag = document.createElement("a");
+    tag.target = "_blank";
+    tag.href = contributor.link;
+    tag.innerHTML = contributor.name;
+    creditHolder.appendChild(tag);
+    if(index + 1 != Config.contributors.length){
+        creditHolder.innerHTML += " + ";
+    }
+});
 
 (async()=>{
     allMarkets = await Manifold.getDggMarkets();
@@ -162,14 +187,19 @@ new ResizeObserver(entries => {
 
 let markets = [];
 let supportedMarkets = new Map();
+
+/**
+ * Returns url hash
+ * @param {*} hash 
+ * @returns {string} hash
+ */
 const getHash = (hash = window.location.hash) => {
     if(hash.indexOf('#') === 0)
         hash = hash.substring(1);
 
-    markets = hash.split('+');
+    return hash
 }
-
-getHash();
+markets = getHash().split('+');
 
 /**
  * 
