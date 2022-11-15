@@ -177,12 +177,14 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
 
     setInterval(async () => {
 
+        currentTime = Date.now();
+
         currentMarkets.forEach(async (market) => {
             if(market.series){
                 let price = await Manifold.getProbability(market.id);
                 market.price = price;
                 market.series.update({
-                    time : Date.now(),
+                    time : currentTime,
                     value : price
                 })
                 allMarkets.set(market.id, market)
@@ -333,6 +335,5 @@ const addTickerEventListener = () => {
         addStockByTicker(...markets);
     });
 }
-
 
 // #endregion
