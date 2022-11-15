@@ -385,6 +385,7 @@ chart.subscribeCrosshairMove(param => {
             return;
         }
 
+        // Generating tooltip
         const series = nearestSeries.series;
         const price = param.seriesPrices.get(series);
 
@@ -393,8 +394,9 @@ chart.subscribeCrosshairMove(param => {
 			</div><div style="color: ${'black'}">
 			</div>`;
 
+        // Positioning tooltip
 		const coordinate = series.priceToCoordinate(price);
-		let shiftedCoordinate = param.point.x + 100;
+		let shiftedCoordinate = param.point.x + 150;
 		if (coordinate === null) {
 			return;
 		}
@@ -402,6 +404,7 @@ chart.subscribeCrosshairMove(param => {
 			0,
 			Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate)
 		);
+        shiftedCoordinate = shiftedCoordinate;
 		const coordinateY =
 			coordinate - toolTipHeight - toolTipMargin > 0
 				? coordinate - toolTipHeight - toolTipMargin
