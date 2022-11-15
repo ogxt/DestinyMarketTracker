@@ -175,37 +175,41 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
         dropdownMenu.appendChild(dropdown)
     });  
 
-    setInterval(async () => {
-
-        currentTime = Date.now();
-
-        currentMarkets.forEach(async (market) => {
-            if(market.series){
-                let price = await Manifold.getProbability(market.id);
-                market.price = price;
-                market.series.update({
-                    time : currentTime,
-                    value : price
-                })
-                allMarkets.set(market.id, market)
-            }
-        })
-    
-        // sorting
-        let newList = document.querySelector(".currentMarkets").cloneNode(false);
-        let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
-        currentMarketList.sort((a,b) => {
-            return allMarkets.get(b.dataset.id).price - allMarkets.get(a.dataset.id).price
-        })
-        for(var i = 0; i < currentMarketList.length; i++){
-            newList.appendChild(currentMarketList[i]);
-        }
-        document.querySelector(".currentMarkets").parentNode.replaceChild(newList, document.querySelector(".currentMarkets"))
-    }, Config.interval);    
+    // TODO: Consider user setting for update interval
+    setInterval(updateMarkets, Config.interval);    
 
     addTickerEventListener(); // Blerch
     setTickerAssociation(Array.from(allMarkets.values())); // Blerch
 })();
+
+const updateMarkets = async() => {
+
+    currentTime = Date.now();
+
+    // Update tickers
+    currentMarkets.forEach(async (market) => {
+        if(market.series){
+            let price = await Manifold.getProbability(market.id);
+            market.price = price;
+            market.series.update({
+                time : currentTime,
+                value : price
+            })
+            allMarkets.set(market.id, market)
+        }
+    })
+
+    // Sort market list by value
+    let newList = document.querySelector(".currentMarkets").cloneNode(false);
+    let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
+    currentMarketList.sort((a,b) => {
+        return allMarkets.get(b.dataset.id).price - allMarkets.get(a.dataset.id).price
+    })
+    for(var i = 0; i < currentMarketList.length; i++){
+        newList.appendChild(currentMarketList[i]);
+    }
+    document.querySelector(".currentMarkets").parentNode.replaceChild(newList, document.querySelector(".currentMarkets"))
+};
 
 // #region Blerch
 
