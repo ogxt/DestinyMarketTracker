@@ -176,7 +176,6 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
     });  
 
     setInterval(async () => {
-
         currentMarkets.forEach(async (market) => {
             if(market.series){
                 let price = await Manifold.getProbability(market.id);
@@ -185,6 +184,7 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                     time : Date.now(),
                     value : price
                 })
+                market.lastPrice = price;
                 allMarkets.set(market.id, market)
             }
         })

@@ -56,6 +56,7 @@ class Market {
         this.name = n
         this.id = market.id;
         this.color = Util.getColor(this.id);
+        this.lastPrice = 0;
         this.initalize();
     }
 
@@ -63,7 +64,7 @@ class Market {
      * Initalizes the class ( needed to avoid async problems )
      */
     async initalize(){
-        this.price = await this.getPrice()
+        this.price, this.lastPrice = await this.getPrice()
         this.history = await this.getHistory()
     }
     /**
