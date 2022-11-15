@@ -24,34 +24,53 @@
             height: 100%;
             width: 100%;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: bold;
+            font-weight: 600;
         }
         body{
-            background-color: #181818;
+            background-color: #080808;
             display: flex;
         }
+
+        p,a {
+            padding-top: 5px;
+            font-size: 15px;
+            font-weight: 2500;
+        }
+
+        p{
+            color : white;
+        }
+
         .markets {
             height: 100%;
-            min-width: fit-content;
-            width: 20%;
+            min-width: 300px !important;
+            width: 15%;
             flex: 1;
         }
         .tracker {
             height: 100%;
-            width: 80%;
+            width: 85%;
         }
+
+        .container {
+            display: block;
+	        width: 100%;
+	        padding-top: 2vh;
+	        position: absolute;
+	        top: 0;
+        }
+
         .currentMarkets {
-            padding-left: 15px;
+            padding-left: 0px;
             padding-top: 25px;
         }
         .noselect {
-          -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
-             -khtml-user-select: none; /* Konqueror HTML */
-               -moz-user-select: none; /* Old versions of Firefox */
-                -ms-user-select: none; /* Internet Explorer/Edge */
-                    user-select: none; /* Non-prefixed version, currently
-                                          supported by Chrome, Edge, Opera and Firefox */
+            -webkit-touch-callout: none; 
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none; 
         }
 
         .dropdown-menu {
@@ -59,15 +78,25 @@
             max-height: 80vh;
         }
 
-        p,a {
-            padding-top: 5px;
-            font-size: 12px;
-            font-weight: 2500;
+        .resize-bar {
+        	left: 100%;
+        	width: 5px;
+        	position: relative;
+        	top: .5%;
+        	bottom: .5%;
+        	cursor: col-resize;
+        	z-index: 10;
+        	transition: background-color .25s ease;
+        	border-radius: 2px;
+        	display: block;
+            height: 99%;
         }
 
-        p{
-            color : white;
+        .resize-bar:hover {
+            background-color: rgba(207,207,207,.5);
         }
+
+        
     </style>
 </head>
 
@@ -82,19 +111,18 @@
 
 <body>
     <div class="markets">
-        <div class="container" style="width:100%;padding-top:2vh;">
+        <div class="resize-bar"></div>
+        <div class="container">
             <div class="dropdown show">
                 <a class="btn btn-secondary dropdown-toggle bg-dark" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Select Stocks
                 </a>
-              
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink"></div>
             </div>
             <span><p class="credits"></p></span>
             <a target="_blank" href="https://manifold.markets/link/lj4JbBvE?referrer=legolas">Free Manifold Mana</a>
+            <ul class="currentMarkets"></ul>
         </div>
-        <ul class="currentMarkets">
-        </ul>
     </div>
     <div class="tracker"></div>
     <script>

@@ -13,9 +13,9 @@ let creditHolder = document.querySelector(".credits")
 const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
     {
         layout: {
-        		backgroundColor: 'rgb(34, 34, 34)',
-        		lineColor: '#2B2B43',
-        		textColor: '#D9D9D9',
+        		backgroundColor: '#111111',
+        		lineColor: '#B9B9B9',
+        		textColor: '#C9C9C9',
         },
         watermark: {
             visible: true,
@@ -26,14 +26,14 @@ const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
             text: Config.watermark,
         },
         crosshair: {
-        	color: '#758696',
+        	color: '#A9A9A9',
         },
         grid: {
         	vertLines: {
-        		color: '#2B2B43',
+        		color: '#494949',
         	},
         	horzLines: {
-        		color: '#363C4E',
+        		color: '#494949',
         	},
         },
         timeScale: {
@@ -71,6 +71,28 @@ Config.contributors.forEach((contributor, index) => {
         creditHolder.innerHTML += " + ";
     }
 });
+
+let setSize = function(size){
+    let chartsize = (size/window.innerWidth ) * 100
+    document.querySelector(".markets").style.width = `${chartsize}%`;
+    document.querySelector(".tracker").style.width = `${100-chartsize}%`
+}
+
+const mouseDownHandler = function (e) {
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
+};
+
+const mouseMoveHandler = function (e) {
+    setSize(e.clientX)
+};
+
+const mouseUpHandler = function () {
+    document.removeEventListener('mousemove', mouseMoveHandler);
+    document.removeEventListener('mouseup', mouseUpHandler);
+};
+
+document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHandler);
 
 (async()=>{
     allMarkets = await Manifold.getDggMarkets();
@@ -134,7 +156,7 @@ Config.contributors.forEach((contributor, index) => {
                 market.series.applyOptions({
                     topColor: 'rgba(0, 0, 0, 0)',
                     bottomColor: 'rgba(0, 0, 0, 0)',
-                    lineColor: market.color.lighten(0.15).saturate(.25).rgb().string(),
+                    lineColor: market.color.saturate(.65).rgb().string(),
                     lineWidth: 3.5,
                 })
             }
