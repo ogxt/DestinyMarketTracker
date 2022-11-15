@@ -94,7 +94,21 @@ const mouseUpHandler = function () {
 
 document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHandler);
 
+const initLoading = () => {
+    // Hide market controls and display loading UI
+    document.querySelector(".loading").style.display = "flex";
+    document.querySelector(".container").style.display = "none";
+};
+
+const finishLoading = () => {
+    // Hide loading UI and display market controls
+    document.querySelector(".loading").style.display = "none";
+    document.querySelector(".container").style.display = "block";
+};
+
 (async()=>{
+    initLoading();
+
     allMarkets = await Manifold.getDggMarkets();
     let arr = [...allMarkets.values()];
     arr.sort((a, b) => { 
@@ -203,7 +217,11 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
 
     addTickerEventListener(); // Blerch
     setTickerAssociation(Array.from(allMarkets.values())); // Blerch
+
+    finishLoading();
 })();
+
+
 
 // #region Blerch
 
