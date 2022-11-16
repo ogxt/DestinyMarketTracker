@@ -26,6 +26,10 @@ module.exports = {
         {
             "username" : "legolas",
             "id" : "WvM5DMB1zUdhBiGm6bOpw7LurAI3"
+        },
+        {
+            "username" : "JesseCharlie",
+            "id" : "AFB2k5UFoMXUpQgnu7lX7eCf8x42"
         }
     ],
     "contributors" : [
