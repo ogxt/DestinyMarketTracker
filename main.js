@@ -211,6 +211,9 @@ class Market {
             layout: {
                 autoPadding: true
             },
+            interaction: {
+                intersect: false
+            }
         }
     
         const chart = new Chart(ctx, {
@@ -253,7 +256,7 @@ class Market {
         // Hash
         this.setStocksByHash = (hash) => {
             this.stocks.forEach((stk) => {
-                if(hash.indexOf(stk.ticker) >= 0) {
+                if(hash.toUpperCase().indexOf(stk.ticker.toUpperCase()) >= 0) {
                     stk.selected = true;
                     document.getElementById(stk.id).checked = true;
                 } else {
