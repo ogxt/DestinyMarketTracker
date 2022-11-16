@@ -31,10 +31,10 @@ const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
         },
         grid: {
         	vertLines: {
-        		color: '#494949',
+        		color: 'rgba(0, 0, 0, 0)',
         	},
         	horzLines: {
-        		color: '#494949',
+        		color: 'rgba(0, 0, 0, 0)',
         	},
         },
         timeScale: {
@@ -158,7 +158,7 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                     topColor: 'rgba(0, 0, 0, 0)',
                     bottomColor: 'rgba(0, 0, 0, 0)',
                     lineColor: market.color.saturate(.65).rgb().string(),
-                    lineWidth: 3.5,
+                    lineWidth: Config.lineWidth + (Config.lineWidth * .25),
                 })
             }
         }
@@ -168,7 +168,7 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                     topColor: 'rgba(0, 0, 0, 0)',
                     bottomColor: 'rgba(0, 0, 0, 0)',
                     lineColor: market.color.rgb().string(),
-                    lineWidth: 2,
+                    lineWidth: Config.lineWidth,
                 })  
             }
             
@@ -337,7 +337,7 @@ const addStockToChart = (market) => {
         topColor: 'rgba(0, 0, 0, 0)',
         bottomColor: 'rgba(0, 0, 0, 0)',
         lineColor: market.color.rgb().string(),
-        lineWidth: 2,
+        lineWidth: Config.lineWidth,
         symbol : market.name,
         title: market.title
     });

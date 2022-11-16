@@ -13,6 +13,7 @@ module.exports = {
         "maxPrice": 100
     },
     "watermark" : "DGG.EXCHANGE", // Graph watermark
+    "lineWidth" : 5,
     "creators" : [
         {
             "username" : "memestiny",
