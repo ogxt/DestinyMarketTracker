@@ -1,5 +1,5 @@
 module.exports = {
-    "interval" : 200, // Interval to update price,
+    "interval" : 150, // Interval to update price,
     "rollingAverageMode": { // Graph will use rolling average price values instead of raw price
         "active": true,
         "averageSampleSize": 11,

@@ -157,8 +157,8 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                 market.series.applyOptions({
                     topColor: 'rgba(0, 0, 0, 0)',
                     bottomColor: 'rgba(0, 0, 0, 0)',
-                    lineColor: market.color.saturate(.65).rgb().string(),
-                    lineWidth: Config.lineWidth + (Config.lineWidth * .25),
+                    lineColor: market.color.lighten(.25).saturate(.9).rgb().string(),
+                    lineWidth: Config.lineWidth + (Config.lineWidth * .35),
                 })
             }
         }
@@ -225,12 +225,12 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                 allMarkets.set(market.id, market);
             }
         })
-    
+        window.allMarkets = allMarkets
         // sorting
         let newList = document.querySelector(".currentMarkets").cloneNode(false);
         let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
         currentMarketList.sort((a,b) => {
-            return allMarkets.get(b.dataset.id).price - allMarkets.get(a.dataset.id).price
+            return allMarkets.get(b.dataset.id).lastPrice - allMarkets.get(a.dataset.id).lastPrice
         })
         for(var i = 0; i < currentMarketList.length; i++){
             newList.appendChild(currentMarketList[i]);
