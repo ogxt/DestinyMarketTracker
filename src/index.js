@@ -1,5 +1,6 @@
 const LightweightCharts = require("lightweight-charts");
 const Manifold = require("./libs/manifold");
+const Util = require("./libs/util");
 
 const Config = require("./config");
 
@@ -173,19 +174,55 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
             
         }
         dropdownMenu.appendChild(dropdown)
-    });  
+    });
 
     setInterval(async () => {
         currentMarkets.forEach(async (market) => {
             if(market.series){
                 let price = await Manifold.getProbability(market.id);
                 market.price = price;
-                market.series.update({
-                    time : Date.now(),
-                    value : price
-                })
+                if (market.priceHistory == null) market.priceHistory = [];
+
+                // OPTIONAL - Use random price values for testing - configured in config.js
+                const rndPrice = Config.randomPriceTestMode;
+                if (rndPrice.active) {
+                    const sinceLastInterval = Date.now() % rndPrice.changeInterval;
+                    const shouldRandomisePrice = sinceLastInterval - Config.interval <= 0;
+                    price = shouldRandomisePrice ? Util.GetRandomInRange(rndPrice.minPrice, rndPrice.maxPrice) : market.lastPrice;
+                }
+
+                // Updating graph with rolling average values - effect is smoother curves
+                const rollAvg = Config.rollingAverageMode;
+                if (rollAvg.active) {
+                    if (market.priceHistory.length >= rollAvg.averageSampleSize) {
+                        // Weighted rolling average
+                        if (rollAvg.useWeightedAverage) {
+                            market.series.update({
+                                time : Date.now(),
+                                value: Util.GetWeightedArrayAverage(market.priceHistory, rollAvg.weights)
+                            })
+                        }
+                        // Rolling average
+                        else {
+                            market.series.update({
+                                time : Date.now(),
+                                value: Util.GetArrayAverage(market.priceHistory)
+                            })
+                        }
+                    }
+                }
+                // Updating graph with raw values
+                else {
+                    market.series.update({
+                        time : Date.now(),
+                        value: price
+                    })
+                }
+
                 market.lastPrice = price;
-                allMarkets.set(market.id, market)
+                market.priceHistory.push(price);
+                if (market.priceHistory.length > rollAvg.averageSampleSize) market.priceHistory.shift();
+                allMarkets.set(market.id, market);
             }
         })
     
