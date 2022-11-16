@@ -1,6 +1,7 @@
 module.exports = {
     "interval" : 200, // Interval to update price
     "watermark" : "DGG.EXCHANGE", // Graph watermark
+    "lineWidth" : 5,
     "creators" : [
         {
             "username" : "memestiny",
