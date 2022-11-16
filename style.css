@@ -1,0 +1,77 @@
+:root {
+    --font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    --font-family-monospace: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    position: relative;
+    margin: 0;
+    font-family: var(--font-family-sans-serif);
+    box-sizing: border-box;
+    color: white;
+}
+
+nav {
+    min-height: 100%;
+    background-color: #060707;
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    position: relative;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    background-color: #111111;
+    position: relative;
+}
+
+canvas {
+    flex: 1;
+    /* min-height: 100%; */
+    width: 100%;
+}
+
+nav * {
+    font-weight: bold;
+}
+
+nav p {
+    margin-bottom: 5px;
+}
+
+nav ul {
+    margin: 0px;
+    padding-left: 15px;
+    list-style-type: none;
+    padding: 0px;
+}
+
+a {
+    text-decoration: none;
+}
+
+div#app-details {
+    padding: 15px;
+}
+
+div#stock-wrapper {
+    flex: 1;
+    overflow-y: scroll;
+    position: relative;
+}
+
+form#stock-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 5px 10px;
+}
