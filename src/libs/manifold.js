@@ -1,5 +1,7 @@
 const Util = require("./util");
 const Config = require("../config")
+
+const cleanTitleReg = new RegExp("(\\(|\\[)permanent(\\]|\\))", "ig")
 /**
  * Gets all markets in a group.
  * @param {string} GroupId The id of the manifold group
@@ -40,7 +42,7 @@ class Market {
      * @param {object} market - The market object from manifold api.
      */
     constructor(market){
-        let n = market.question.replace("(Permanent)","");
+        let n = market.question.replace(cleanTitleReg,"");
         if(n.indexOf('$') === 0) {
             n = n.split(' ');
             n.shift();
@@ -97,7 +99,7 @@ module.exports.getDggMarkets = async function(){
     let names = [];
 
     marketList.forEach(market => {
-        if (market.question.includes("(Permanent)") && market.question.includes("Stock")){
+        if (market.question.toLowerCase().includes("permanent") && market.question.toLowerCase().includes("stock") && !market.isResolved){
             let _market = new Market(market);
             if(names.indexOf(_market.name.toUpperCase()) > -1)
                 return;
