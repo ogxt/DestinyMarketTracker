@@ -9,9 +9,7 @@ let currentMarkets = new Map();
 let allMarkets = new Map();
 let allRows = [];
 
-let dropdownMenu = document.querySelector(".dropdown-menu");
 let currentMarketHolder = document.querySelector(".currentMarkets");
-let creditHolder = document.querySelector(".credits")
 let itemHolder = document.querySelector(".listContainer");
 
 const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
@@ -56,42 +54,11 @@ new ResizeObserver(entries => {
         chart.applyOptions({ height: newRect.height, width: newRect.width });
 }).observe(document.querySelector(".tracker"));
 
-/*
-creditHolder.innerHTML += "Stocks from : <br>"
-Config.creators.forEach(creator => {
-    creditHolder.innerHTML += "- ";
-    let tag = document.createElement("a");
-    tag.target = "_blank";
-    let url =  "https://manifold.markets/" + creator.username;
-    tag.href = url;
-    tag.innerHTML = url;
-    creditHolder.appendChild(tag);
-    creditHolder.innerHTML += "<br>"
-});
-
-creditHolder.innerHTML += "<br>Created by : "
-Config.contributors.forEach((contributor, index) => {
-    let tag = document.createElement("a");
-    tag.target = "_blank";
-    tag.href = contributor.link;
-    tag.innerHTML = contributor.name;
-    creditHolder.appendChild(tag);
-    if(index + 1 != Config.contributors.length){
-        creditHolder.innerHTML += " + ";
-    }
-});
-*/
-
 let setSize = function(size){
     let chartsize = (size/window.innerWidth ) * 100
     document.querySelector(".markets").style.width = `${chartsize}%`;
     document.querySelector(".tracker").style.width = `${100-chartsize}%`
 }
-
-const mouseDownHandler = function (e) {
-    document.addEventListener('mousemove', mouseMoveHandler);
-    document.addEventListener('mouseup', mouseUpHandler);
-};
 
 const mouseMoveHandler = function (e) {
     setSize(e.clientX)
@@ -101,8 +68,6 @@ const mouseUpHandler = function () {
     document.removeEventListener('mousemove', mouseMoveHandler);
     document.removeEventListener('mouseup', mouseUpHandler);
 };
-
-// document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHandler);
 
 (async()=>{
     allMarkets = await Manifold.getDggMarkets();

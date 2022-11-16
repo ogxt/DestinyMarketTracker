@@ -39,10 +39,10 @@
 
         .marketHolder {
             display:none;
-            color:white;
+            color: rgb(235, 235, 235);;
             float : left;
             clear: left;
-            background-color: rgb(52, 58, 64);
+            background-color: rgba(45, 45, 45);
             padding: 8px;
             margin-right: 5px;
             margin-top: 5px;
@@ -67,36 +67,36 @@
             display:inline-block;
             background-color: transparent;
             border: transparent;
-            color: #d1d4dc;
+            color: rgb(235, 235, 235);;
             font-size: 15px;
             font-weight: 700;
             margin-right: 5px;
         }
 
         a {
-            color : #d1d4dc;
+            color : rgb(235, 235, 235);;
         }
 
         a:link {
-            color : #d1d4dc;
+            color : rgb(235, 235, 235);;
             background-color: transparent;
             text-decoration: none;
         }
 
         a:visited {
-            color : #d1d4dc;
+            color : rgb(235, 235, 235);;
             background-color: transparent;
             text-decoration: none;
         }
 
         a:hover {
-            color: #d1d4dc;
+            color: rgb(235, 235, 235);;
             background-color: transparent;
             text-decoration: none;
         }
 
         a:active {
-            color: #d1d4dc;
+            color: rgb(235, 235, 235);;
             background-color: transparent;
             text-decoration: none;
         }
@@ -108,9 +108,9 @@
             transform: translate(-50%, -50%);
             width: 40%;
             height: 70%;
-            background-color: rgb(52, 58, 64);
+            background-color: rgb(45, 45, 45);
             border-radius: 6px;
-            color: #d1d4dc;
+            color: rgb(235, 235, 235);;
             display: none;
             flex-direction: column;
         }
@@ -134,7 +134,7 @@
 
         .CloseButton{
             font-size: 30px;
-            color: #d1d4dc;
+            color: rgb(235, 235, 235);;
             outline: none;
             overflow: visible;
             position: relative;
@@ -152,10 +152,10 @@
         }
 
         .searchContainer {
-            border-color: #989EA4;
+            border-color: rgb(235, 235, 235);;
             align-items: center;
-            border-bottom: 1px solid #989EA4;
-            border-top: 1px solid #989EA4;
+            border-bottom: 1px solid rgb(235, 235, 235);;
+            border-top: 1px solid rgb(235, 235, 235);;
             cursor: default;
             display: flex;
             flex-shrink: 0;
@@ -170,7 +170,7 @@
         }
 
         .Search {
-            color: #989EA4;
+            color: rgb(235, 235, 235);;
             text-transform: uppercase;
             background-color: initial;
             border: none;
@@ -187,7 +187,7 @@
         .Search:focus {outline:none;}
 
         .searchIcon {
-            color: #989EA4;
+            color: rgb(235, 235, 235);;
             height: 30px;
             left: 10px;
             pointer-events: none;
@@ -239,7 +239,7 @@
             z-index: 1;
             height: 40px;
             padding-right: 24px;
-            background-color: rgb(52, 58, 64);
+            background-color: rgb(45, 45, 45);
         }
 
         .Item:first-child {
@@ -253,7 +253,7 @@
         }
         
         .itemText {
-            color: #989EA4;
+            color: rgb(235, 235, 235);;
             font-size: 15px;
             font-style: normal;
             font-weight: 650;
@@ -273,7 +273,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            color: #989EA4;
+            color: rgb(235, 235, 235);;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -288,12 +288,12 @@
             max-width: 240px;
             overflow: hidden;
             padding-right: 24px;
-            border-bottom-color: 1px solid #989EA4;
+            border-bottom-color: 1px solid rgb(235, 235, 235);;
             height: 39px;
         }
 
         .titleCell {
-            border-bottom-color: 1px solid #989EA4;
+            border-bottom-color: 1px solid rgb(235, 235, 235);;
             display: flex;
             min-width: 0;
             cursor: default;
@@ -301,7 +301,7 @@
         }
 
         .titleText {
-            color: #989EA4;
+            color: rgb(235, 235, 235);;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -313,7 +313,7 @@
         }
 
         .creatorCell {
-            border-bottom-color: 1px solid #989EA4;
+            border-bottom-color: 1px solid rgb(235, 235, 235);;
             align-items: center;
             display: flex;
             flex-shrink: 0;
@@ -327,7 +327,7 @@
         .creatorText {
             display: flex;
             overflow: hidden;
-            color: #989EA4;
+            color: rgb(235, 235, 235);;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -335,16 +335,20 @@
         }
 
         .itemRow:hover .tickerCell {
-            background-color:#5C6268
+            background-color:rgb(85, 85, 85)
         }
 
         .itemRow:hover .titleCell {
-            background-color:#5C6268
+            background-color:rgb(85, 85, 85)
         }
 
         .itemRow:hover .creatorCell {
-            background-color:#5C6268
+            background-color:rgb(85, 85, 85)
+        }
+
+        .btn-dark {
+            background-color: rgb(45, 45, 45) !important;
         }</style></head><script async src="https://www.googletagmanager.com/gtag/js?id=G-XX3YRT498Y"></script><script>window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-XX3YRT498Y');</script><body><div class="overlay"><button type="button" class="btn btn-dark mx-3 my-3" onclick="openSelectionMenu()">Select Stocks</button><ul class="currentMarkets mx-3 my-3 px-0"></ul><div class="selection"><div class="SearchHolder"><h1 class="SearchLabel">Stock Search</h1><button class="CloseButton" onclick="closeSelectionMenu()">X</button></div><div class="searchContainer"><div class="inputContainer"><input class="Search" autocomplete="off" data-role="search" placeholder="Search" value=""> <span class="searchIcon"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px"><path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"/></svg></span></div></div><div class="wrap"><div class="scrollContainer"><div class="listContainer"><div class="TitleWrap"><div class="Item"><div class="itemText">Ticker</div><div class="itemText">Title</div><div class="itemText">Creator</div></div></div></div></div></div></div></div><div class="tracker"></div><script>$('.dropdown-toggle').dropdown()</script><script defer="defer" src="main.js?2d4a781060c4e2d2ec88"></script></body></html>
+  gtag('config', 'G-XX3YRT498Y');</script><body><div class="overlay"><button type="button" class="btn btn-dark mx-3 my-3" onclick="openSelectionMenu()">Select Stocks</button><ul class="currentMarkets mx-3 my-3 px-0"></ul><div class="selection"><div class="SearchHolder"><h1 class="SearchLabel">Stock Search</h1><button class="CloseButton" onclick="closeSelectionMenu()">X</button></div><div class="searchContainer"><div class="inputContainer"><input class="Search" autocomplete="off" data-role="search" placeholder="Search" value=""> <span class="searchIcon"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px"><path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"/></svg></span></div></div><div class="wrap"><div class="scrollContainer"><div class="listContainer"><div class="TitleWrap"><div class="Item"><div class="itemText">Ticker</div><div class="itemText">Title</div><div class="itemText">Creator</div></div></div></div></div></div></div></div><div class="tracker"></div><script>$('.dropdown-toggle').dropdown()</script><script defer="defer" src="main.js?109726227e5164de755b"></script></body></html>
