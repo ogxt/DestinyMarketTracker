@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "color": "^4.2.3",
+    "fuzzysort": "^2.0.3",
     "lightweight-charts": "^3.8.0",
     "seed-to-color": "^1.0.4"
   }

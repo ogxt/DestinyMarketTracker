@@ -14,39 +14,12 @@
             display: flex;
         }
 
-        p,a {
-            padding-top: 5px;
-            font-size: 15px;
-            font-weight: 2500;
-        }
-
-        p{
-            color : white;
-        }
-
-        .markets {
-            height: 100%;
-            min-width: 300px !important;
-            width: 15%;
-            flex: 1;
-        }
         .tracker {
             height: 100%;
-            width: 85%;
+            width: 100%;
+            position: absolute;
         }
 
-        .container {
-            display: block;
-	        width: 100%;
-	        padding-top: 2vh;
-	        position: absolute;
-	        top: 0;
-        }
-
-        .currentMarkets {
-            padding-left: 0px;
-            padding-top: 25px;
-        }
         .noselect {
             -webkit-touch-callout: none; 
             -webkit-user-select: none;
@@ -56,28 +29,326 @@
             user-select: none; 
         }
 
-        .dropdown-menu {
-            overflow-y: scroll;
-            max-height: 80vh;
+        .overlay {
+            position: absolute;
+            z-index: 999999;
+            height: 100%;
+            width: 100%;
+            background-color: rgba(52, 58, 64, 0);
         }
 
-        .resize-bar {
-        	left: 100%;
-        	width: 5px;
-        	position: relative;
-        	top: .5%;
-        	bottom: .5%;
-        	cursor: col-resize;
-        	z-index: 10;
-        	transition: background-color .25s ease;
-        	border-radius: 2px;
-        	display: block;
-            height: 99%;
+        .marketHolder {
+            display:none;
+            color: rgb(235, 235, 235);;
+            float : left;
+            clear: left;
+            background-color: rgba(45, 45, 45);
+            padding: 8px;
+            margin-right: 5px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 650;
         }
 
-        .resize-bar:hover {
-            background-color: rgba(207,207,207,.5);
+        .colorKey {
+            margin-left: 3px;
+            margin-right: 3px;
+            margin-bottom: 3px;
+            width: 12px; 
+            height: 12px;
+            border-radius : 10px;
+            display:inline-block;
+            vertical-align:middle;
+        }
+
+        .RemoveButton {
+            display:inline-block;
+            background-color: transparent;
+            border: transparent;
+            color: rgb(235, 235, 235);;
+            font-size: 15px;
+            font-weight: 700;
+            margin-right: 5px;
+        }
+
+        a {
+            color : rgb(235, 235, 235);;
+        }
+
+        a:link {
+            color : rgb(235, 235, 235);;
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        a:visited {
+            color : rgb(235, 235, 235);;
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: rgb(235, 235, 235);;
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        a:active {
+            color: rgb(235, 235, 235);;
+            background-color: transparent;
+            text-decoration: none;
+        }
+
+        .selection {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40%;
+            height: 70%;
+            background-color: rgb(45, 45, 45);
+            border-radius: 6px;
+            color: rgb(235, 235, 235);;
+            display: none;
+            flex-direction: column;
+        }
+
+        .SearchHolder{
+            align-items: center;
+            cursor: default;
+            display: flex;
+            flex: 0 0 auto;
+            padding: 0 20px;
+            text-align: left;
+        }
+
+        .SearchLabel {
+            flex-grow: 1;
+            font-size: 35px;
+            font-weight: 450;
+            min-width: 0;
+            padding: 17px 0;
+        }
+
+        .CloseButton{
+            font-size: 30px;
+            color: rgb(235, 235, 235);;
+            outline: none;
+            overflow: visible;
+            position: relative;
+            align-items: center;
+            background-color: initial;
+            border: 0;
+            border-radius: 2px;
+            cursor: default;
+            display: flex;
+            flex-shrink: 0;
+            height: 34px;
+            justify-content: center;
+            margin: 17px -3px 17px 0;
+            width: 34px;
+        }
+
+        .searchContainer {
+            border-color: rgb(235, 235, 235);;
+            align-items: center;
+            border-bottom: 1px solid rgb(235, 235, 235);;
+            border-top: 1px solid rgb(235, 235, 235);;
+            cursor: default;
+            display: flex;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .inputContainer{
+            height: 50px;
+            padding: 8px 16px 8px 47px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .Search {
+            color: rgb(235, 235, 235);;
+            text-transform: uppercase;
+            background-color: initial;
+            border: none;
+            font-size: 16px;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            user-select: text;
+            border-radius: 0;
+            font-weight: 300;
+        }
+
+        .Search:focus {outline:none;}
+
+        .searchIcon {
+            color: rgb(235, 235, 235);;
+            height: 30px;
+            left: 10px;
+            pointer-events: none;
+            position: absolute;
+            top: 17%;
+        }
+
+        .wrap {
+            contain: strict;
+            cursor: default;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 0;
+        }
+
+        .scrollContainer{
+            scrollbar-color: #65676e #0000;
+            scrollbar-width: thin;
+            height: 100%;
+            margin-top: 1px;
+            overflow: auto;
+            scroll-padding-top: 40px;
+
+        }
+
+        .listContainer {
+            align-items: center;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: min-content 1fr min-content;
+            margin-top: -1px;
+            max-width: 100%;
+            padding-bottom: 6px;
+            position: static;
+            float: none;
+        }
+
+        .TitleWrap {
+            display: contents;
+        }
+
+        .Item {
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            position: sticky;
+            top: -1px;
+            z-index: 1;
+            height: 40px;
+            padding-right: 24px;
+            background-color: rgb(45, 45, 45);
+        }
+
+        .Item:first-child {
+            min-width: 0;
+            padding-left: 20px;
+        }
+
+        .Item:last-child {
+          grid-column-start: span 3;
+          padding-right: 17px;
+        }
+        
+        .itemText {
+            color: rgb(235, 235, 235);;
+            font-size: 15px;
+            font-style: normal;
+            font-weight: 650;
+            letter-spacing: .4px;
+            line-height: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .itemRow {
+            display: contents;
+        }
+
+        .tickerLabel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: rgb(235, 235, 235);;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 16px;
+            line-height: 24px;
+            text-transform: uppercase;
+            padding-left: 24px;
+        }
+
+        .tickerCell {
+            display: flex;
+            max-width: 240px;
+            overflow: hidden;
+            padding-right: 24px;
+            border-bottom-color: 1px solid rgb(235, 235, 235);;
+            height: 39px;
+        }
+
+        .titleCell {
+            border-bottom-color: 1px solid rgb(235, 235, 235);;
+            display: flex;
+            min-width: 0;
+            cursor: default;
+            height: 39px;
+        }
+
+        .titleText {
+            color: rgb(235, 235, 235);;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            line-height: 39px;
+            margin-right: auto;
+            padding-right: 24px;
+            text-transform: uppercase;
+        }
+
+        .creatorCell {
+            border-bottom-color: 1px solid rgb(235, 235, 235);;
+            align-items: center;
+            display: flex;
+            flex-shrink: 0;
+            justify-content: flex-end;
+            overflow: hidden;
+            padding-right: 20px;
+            cursor: default;
+            height: 39px;
+        }
+
+        .creatorText {
+            display: flex;
+            overflow: hidden;
+            color: rgb(235, 235, 235);;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+        }
+
+        .itemRow:hover .tickerCell {
+            background-color:rgb(85, 85, 85)
+        }
+
+        .itemRow:hover .titleCell {
+            background-color:rgb(85, 85, 85)
+        }
+
+        .itemRow:hover .creatorCell {
+            background-color:rgb(85, 85, 85)
+        }
+
+        .btn-dark {
+            background-color: rgb(45, 45, 45) !important;
         }</style></head><script async src="https://www.googletagmanager.com/gtag/js?id=G-XX3YRT498Y"></script><script>window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-XX3YRT498Y');</script><body><div class="markets"><div class="resize-bar"></div><div class="container"><div class="dropdown show"><a class="btn btn-secondary dropdown-toggle bg-dark" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select Stocks</a><div class="dropdown-menu" aria-labelledby="dropdownMenuLink"></div></div><span><p class="credits"></p></span><a target="_blank" href="https://manifold.markets/link/lj4JbBvE?referrer=legolas">Free Manifold Mana</a><ul class="currentMarkets"></ul></div></div><div class="tracker"></div><script>$('.dropdown-toggle').dropdown()</script><script defer="defer" src="main.js?b9f40a294aae84dd42b7"></script></body></html>
+  gtag('config', 'G-XX3YRT498Y');</script><body><div class="overlay"><button type="button" class="btn btn-dark mx-3 my-3" onclick="openSelectionMenu()">Select Stocks</button><ul class="currentMarkets mx-3 my-3 px-0"></ul><div class="selection"><div class="SearchHolder"><h1 class="SearchLabel">Stock Search</h1><button class="CloseButton" onclick="closeSelectionMenu()">X</button></div><div class="searchContainer"><div class="inputContainer"><input class="Search" autocomplete="off" data-role="search" placeholder="Search" value=""> <span class="searchIcon"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30" width="30px" height="30px"><path d="M 13 3 C 7.4889971 3 3 7.4889971 3 13 C 3 18.511003 7.4889971 23 13 23 C 15.396508 23 17.597385 22.148986 19.322266 20.736328 L 25.292969 26.707031 A 1.0001 1.0001 0 1 0 26.707031 25.292969 L 20.736328 19.322266 C 22.148986 17.597385 23 15.396508 23 13 C 23 7.4889971 18.511003 3 13 3 z M 13 5 C 17.430123 5 21 8.5698774 21 13 C 21 17.430123 17.430123 21 13 21 C 8.5698774 21 5 17.430123 5 13 C 5 8.5698774 8.5698774 5 13 5 z"/></svg></span></div></div><div class="wrap"><div class="scrollContainer"><div class="listContainer"><div class="TitleWrap"><div class="Item"><div class="itemText">Ticker</div><div class="itemText">Title</div><div class="itemText">Creator</div></div></div></div></div></div></div></div><div class="tracker"></div><script>$('.dropdown-toggle').dropdown()</script><script defer="defer" src="main.js?17ae5c58d219edc9151c"></script></body></html>

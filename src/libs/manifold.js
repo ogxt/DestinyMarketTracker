@@ -1,5 +1,7 @@
 const Util = require("./util");
 const Config = require("../config")
+
+const cleanTitleReg = new RegExp("(\\(|\\[)permanent(\\]|\\))", "ig")
 /**
  * Gets all markets in a group.
  * @param {string} GroupId The id of the manifold group
@@ -40,7 +42,7 @@ class Market {
      * @param {object} market - The market object from manifold api.
      */
     constructor(market){
-        let n = market.question.replace("(Permanent)","");
+        let n = market.question.replace(cleanTitleReg,"");
         if(n.indexOf('$') === 0) {
             n = n.split(' ');
             n.shift();
@@ -55,7 +57,11 @@ class Market {
 
         this.name = n
         this.id = market.id;
+        this.url  = market.url;
+        this.creator = market.creatorUsername;
+        this.volume = market.volume;
         this.color = Util.getColor(this.id);
+        this.lastPrice = 0;
         this.initalize();
     }
 
@@ -63,7 +69,7 @@ class Market {
      * Initalizes the class ( needed to avoid async problems )
      */
     async initalize(){
-        this.price = await this.getPrice()
+        this.price, this.lastPrice = await this.getPrice()
         this.history = await this.getHistory()
     }
     /**
@@ -93,15 +99,13 @@ module.exports.getDggMarkets = async function(){
     let names = [];
 
     marketList.forEach(market => {
-        Config.creators.forEach(creator => {
-            if (market.creatorId == creator.id && market.question.includes("(Permanent)")){
-                let _market = new Market(market);
-                if(names.indexOf(_market.name.toUpperCase()) > -1)
-                    return;
-                names.push(_market.name.toUpperCase());
-                markets.set(market.id, _market);
-            }
-        })
+        if (market.question.toLowerCase().includes("permanent") && market.question.toLowerCase().includes("stock") && !market.isResolved){
+            let _market = new Market(market);
+            if(names.indexOf(_market.name.toUpperCase()) > -1)
+                return;
+            names.push(_market.name.toUpperCase());
+            markets.set(market.id, _market);
+        }
     });
 
     return markets;
