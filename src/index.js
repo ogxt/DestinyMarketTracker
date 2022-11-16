@@ -81,6 +81,7 @@ const mouseUpHandler = function () {
 
         return 0;
     });
+
     arr.forEach(market => {
 
         let itemRow = document.createElement("div");
@@ -89,7 +90,7 @@ const mouseUpHandler = function () {
         itemRow.dataset.name = market.name;
         itemRow.dataset.volume = market.volume;
 
-        market.ticker = getTicker(market.name, undefined, true)
+        market.ticker = getTicker(market.name)
 
         itemRow.onclick = () => {
             addStockToChart(market)
