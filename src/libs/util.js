@@ -7,7 +7,7 @@ const Color = require("color");
  * @returns {object} The generated color
  */
 module.exports.getColor = function(seed){
-    return Color(`#${randomLightColor(seed)}`).lighten(.05).saturate(.65);
+    return Color(`#${randomLightColor(seed)}`).lighten(.05).saturate(1.5);
 }
 
 /**
