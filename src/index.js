@@ -1,15 +1,18 @@
 const LightweightCharts = require("lightweight-charts");
 const Manifold = require("./libs/manifold");
 const Util = require("./libs/util");
+const fuzzysort = require('fuzzysort')
 
 const Config = require("./config");
 
 let currentMarkets = new Map();
 let allMarkets = new Map();
+let allRows = [];
 
 let dropdownMenu = document.querySelector(".dropdown-menu");
 let currentMarketHolder = document.querySelector(".currentMarkets");
 let creditHolder = document.querySelector(".credits")
+let itemHolder = document.querySelector(".listContainer");
 
 const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
     {
@@ -40,6 +43,10 @@ const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
         timeScale: {
             visible: false,
         },
+        rightPriceScale: {
+            autoScale : true,
+
+        }
     }
 );
 
@@ -49,6 +56,7 @@ new ResizeObserver(entries => {
         chart.applyOptions({ height: newRect.height, width: newRect.width });
 }).observe(document.querySelector(".tracker"));
 
+/*
 creditHolder.innerHTML += "Stocks from : <br>"
 Config.creators.forEach(creator => {
     creditHolder.innerHTML += "- ";
@@ -72,6 +80,7 @@ Config.contributors.forEach((contributor, index) => {
         creditHolder.innerHTML += " + ";
     }
 });
+*/
 
 let setSize = function(size){
     let chartsize = (size/window.innerWidth ) * 100
@@ -93,7 +102,7 @@ const mouseUpHandler = function () {
     document.removeEventListener('mouseup', mouseUpHandler);
 };
 
-document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHandler);
+// document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHandler);
 
 (async()=>{
     allMarkets = await Manifold.getDggMarkets();
@@ -109,49 +118,87 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
     });
     arr.forEach(market => {
 
-        let dropdown = document.createElement("a")
-        dropdown.className = "dropdown-item stock-ticker"
-        dropdown.dataset.ticker = getTicker(market.name, undefined, true) // Blerch
-        dropdown.innerHTML = market.name
-        dropdown.href = "#"
+        let itemRow = document.createElement("div");
+        itemRow.className = "itemRow stock-ticker";
+        itemRow.dataset.marketID = market.id;
+        itemRow.dataset.name = market.name;
+        itemRow.dataset.volume = market.volume;
+
+        market.ticker = getTicker(market.name, undefined, true)
+
+        itemRow.onclick = () => {
+            addStockToChart(market)
+        }
+
+        // start ticker element
+        let tickerCell = document.createElement("div");
+        tickerCell.className = "tickerCell";
+
+        let tickerLabel = document.createElement("div");
+        tickerLabel.className = "tickerLabel";
+        let tickerText = document.createElement("span");
+        tickerText.innerText = market.ticker;
+
+        tickerCell.appendChild(tickerLabel)
+        tickerLabel.appendChild(tickerText);
+        itemRow.appendChild(tickerCell);
+        // end ticker element
+
+        // start title element
+        let titleCell = document.createElement("div");
+        titleCell.className = "titleCell";
+
+        let titleText = document.createElement("span");
+        titleText.className = "titleText";
+        titleText.innerText = market.name;
+
+        titleCell.appendChild(titleText)
+        itemRow.append(titleCell);
+        // end title element
+
+        // start creator element
+        let creatorCell = document.createElement("div");
+        creatorCell.className = "creatorCell";
+        let creatorText = document.createElement("span");
+        creatorText.className = "creatorText";
+        creatorText.innerText = market.creator;
+
+        creatorCell.appendChild(creatorText)
+        itemRow.appendChild(creatorCell)
+        // end creator element
+
+        itemHolder.appendChild(itemRow);
+        allRows.push(itemRow);
+
+        let removeButton = document.createElement("button");
+        removeButton.className = "RemoveButton stock-ticker";
+        removeButton.innerHTML = "X";
+
+        removeButton.onclick = () => {
+            removeStockFromChart(market);
+        }
     
         let marketHolder = document.createElement("li");
-        marketHolder.id = `market-holder-${getTicker(market.name, undefined, true)}`;// Blerch
+        marketHolder.id = `market-holder-${market.id}`;// Blerch
         marketHolder.dataset.id = market.id
-        marketHolder.style = `
-            display:none;
-            color:white;
-            float : left;
-            clear: left;
-            margin-right: 15px;
-        `;
+        marketHolder.className = "marketHolder";
     
-        let marketEl = document.createElement("span");
+        let marketEl = document.createElement("a");
         marketEl.innerHTML = market.name;
+        marketEl.target = "_blank"
+
+        marketEl.href = market.url;
     
         let colorKey = document.createElement("span")
-        colorKey.style = `
-            margin-bottom: 2px;
-            width: 12px; 
-            height: 12px;
-            background-color : ${market.color.rgb().string()};
-            border-radius : 10px;
-            display:inline-block;
-            vertical-align:middle;
-        `;
-    
+        colorKey.className = "colorKey";
+        colorKey.style.backgroundColor = market.color.rgb().string();
+        
+        marketHolder.appendChild(removeButton);
         marketHolder.appendChild(marketEl)
         marketHolder.appendChild(colorKey)
     
         currentMarketHolder.appendChild(marketHolder)
-    
-        dropdown.onclick = () => {
-            if(currentMarkets.has(market.id)){
-                removeStockFromChart(market);
-            }else{
-                addStockToChart(market);
-            }
-        }
+        
         marketEl.onmouseover  = () => {
             if (market.series){
                 market.series.applyOptions({
@@ -171,9 +218,50 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                     lineWidth: Config.lineWidth,
                 })  
             }
-            
         }
-        dropdownMenu.appendChild(dropdown)
+    });
+
+    function sortVolume() {
+        let newList = document.querySelector(".listContainer").cloneNode(false);
+        [].slice.call(document.querySelector(".listContainer").children).filter(row => !row.className.includes("itemRow")).forEach(item => {
+            newList.appendChild(item)
+        })
+        let MarketList = [].slice.call(document.querySelector(".listContainer").children).filter(row => row.className.includes("itemRow"));
+        MarketList.sort((a,b) => {
+            return allMarkets.get(b.dataset.marketID).volume - allMarkets.get(a.dataset.marketID).volume
+        })
+        for(var i = 0; i < MarketList.length; i++){
+            newList.appendChild(MarketList[i]);
+        }
+        document.querySelector(".listContainer").parentNode.replaceChild(newList, document.querySelector(".listContainer"))
+    };
+
+    sortVolume();
+   
+    document.querySelector("input").addEventListener('keyup', (event) => {
+        if(event.target.value == ""){
+            let newList = document.querySelector(".listContainer").cloneNode(false);
+            [].slice.call(document.querySelector(".listContainer").children).filter(row => !row.className.includes("itemRow")).forEach(item => {
+                newList.appendChild(item)
+            })
+            for(var i = 0; i < allRows.length; i++){
+                newList.appendChild(allRows[i]);
+            }
+            document.querySelector(".listContainer").parentNode.replaceChild(newList, document.querySelector(".listContainer"))
+            sortVolume();
+        }else{
+            let results = fuzzysort.go(event.target.value, allRows, {
+                key : "dataset.name"
+            })
+            let newList = document.querySelector(".listContainer").cloneNode(false);
+            [].slice.call(document.querySelector(".listContainer").children).filter(row => !row.className.includes("itemRow")).forEach(item => {
+                newList.appendChild(item)
+            })
+            for(var i = 0; i < results.length; i++){
+                newList.appendChild(results[i].obj);
+            }
+            document.querySelector(".listContainer").parentNode.replaceChild(newList, document.querySelector(".listContainer"))
+        }
     });
 
     setInterval(async () => {
@@ -225,7 +313,6 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
                 allMarkets.set(market.id, market);
             }
         })
-        window.allMarkets = allMarkets
         // sorting
         let newList = document.querySelector(".currentMarkets").cloneNode(false);
         let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
@@ -239,7 +326,9 @@ document.querySelector(".resize-bar").addEventListener('mousedown', mouseDownHan
     }, Config.interval);    
 
     addTickerEventListener(); // Blerch
-    setTickerAssociation(Array.from(allMarkets.values())); // Blerch
+    setTickerAssociation(Array.from(allMarkets.values()).sort((a,b) => {
+        return b.volume - a.volume
+    })); // Blerch
 })();
 
 // #region Blerch
@@ -274,7 +363,6 @@ const getTicker = (name, length = 3, allow_exsiting = false) => {
     if(supportedMarkets.has(n) && !allow_exsiting) {
         return getTicker(name, length + 1);
     } else {
-        //console.log(name, n);
         return n.toUpperCase();
     }
 }
@@ -282,17 +370,17 @@ const getTicker = (name, length = 3, allow_exsiting = false) => {
 const setTickerAssociation = (output) => {
     for(let i = 0; i < output.length; i++) {
         let ticker = getTicker(output[i].name);
-        supportedMarkets.set(ticker, output[i]);
+        if(!supportedMarkets.has(ticker)){
+            supportedMarkets.set(ticker, output[i]);
+        }
     }
-
-    //console.log(supportedMarkets);
     addStockByTicker(...markets);
 }
 
 const clearStocks = () => {
     let stocks = Array.from(currentMarkets.values());
     stocks.forEach((stock) => {
-        let mh = document.getElementById(`market-holder-${getTicker(stock.name)}`);
+        let mh = document.getElementById(`market-holder-${market.id}`);
         if(mh instanceof Element)
             mh.style.display = "none";
 
@@ -320,19 +408,20 @@ const addStockByTicker = (...tickers) => {
 
 const removeStockFromChart = (market) => {
     currentMarkets.delete(market.id);
-    let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
-    marketHolder.style.display = "none";
-    let dropdownElement = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`);
-    dropdownElement.classList.remove("active");
+    let marketHolders = document.querySelectorAll(`#market-holder-${market.id}`)
+    marketHolders.forEach(marketHolder => {
+        marketHolder.style.display = "none";
+    })
     chart.removeSeries(market.series);
 }
 
 const addStockToChart = (market) => {
     currentMarkets.set(market.id, market);
-    let marketHolder = document.getElementById(`market-holder-${getTicker(market.name, undefined, true)}`);
-    marketHolder.style.display = "table";
-    let dropdownElement = document.querySelector(`[data-ticker='${getTicker(market.name, undefined, true)}']`);
-    dropdownElement.classList.add("active");
+    let marketHolders = document.querySelectorAll(`#market-holder-${market.id}`)
+
+    marketHolders.forEach(marketHolder => {
+        marketHolder.style.display = "table";
+    })
     market.series = chart.addAreaSeries({
         topColor: 'rgba(0, 0, 0, 0)',
         bottomColor: 'rgba(0, 0, 0, 0)',
@@ -373,3 +462,13 @@ const addTickerEventListener = () => {
 
 
 // #endregion
+
+window.closeSelectionMenu = () => {
+    document.querySelector(".selection").style.display = "none";
+    document.querySelector(".overlay").style.backgroundColor = "rgba(0, 0, 0, 0)"
+}
+
+window.openSelectionMenu = () => {
+    document.querySelector(".selection").style.display = "flex";
+    document.querySelector(".overlay").style.backgroundColor = "rgba(0, 0, 0, .8)"
+}

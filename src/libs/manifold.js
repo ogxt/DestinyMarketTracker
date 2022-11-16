@@ -55,6 +55,9 @@ class Market {
 
         this.name = n
         this.id = market.id;
+        this.url  = market.url;
+        this.creator = market.creatorUsername;
+        this.volume = market.volume;
         this.color = Util.getColor(this.id);
         this.lastPrice = 0;
         this.initalize();
@@ -94,15 +97,13 @@ module.exports.getDggMarkets = async function(){
     let names = [];
 
     marketList.forEach(market => {
-        Config.creators.forEach(creator => {
-            if (market.creatorId == creator.id && market.question.includes("(Permanent)")){
-                let _market = new Market(market);
-                if(names.indexOf(_market.name.toUpperCase()) > -1)
-                    return;
-                names.push(_market.name.toUpperCase());
-                markets.set(market.id, _market);
-            }
-        })
+        if (market.question.includes("(Permanent)") && market.question.includes("Stock")){
+            let _market = new Market(market);
+            if(names.indexOf(_market.name.toUpperCase()) > -1)
+                return;
+            names.push(_market.name.toUpperCase());
+            markets.set(market.id, _market);
+        }
     });
 
     return markets;
