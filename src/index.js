@@ -231,6 +231,9 @@ const mouseUpHandler = function () {
     });
 
     setInterval(async () => {
+
+        let now = Date.now();
+
         currentMarkets.forEach(async (market) => {
             if(market.series){
                 let price = await Manifold.getProbability(market.id);
@@ -240,7 +243,7 @@ const mouseUpHandler = function () {
                 // OPTIONAL - Use random price values for testing - configured in config.js
                 const rndPrice = Config.randomPriceTestMode;
                 if (rndPrice.active) {
-                    const sinceLastInterval = Date.now() % rndPrice.changeInterval;
+                    const sinceLastInterval = now % rndPrice.changeInterval;
                     const shouldRandomisePrice = sinceLastInterval - Config.interval <= 0;
                     price = shouldRandomisePrice ? Util.GetRandomInRange(rndPrice.minPrice, rndPrice.maxPrice) : market.lastPrice;
                 }
@@ -252,14 +255,14 @@ const mouseUpHandler = function () {
                         // Weighted rolling average
                         if (rollAvg.useWeightedAverage) {
                             market.series.update({
-                                time : Date.now(),
+                                time : now,
                                 value: Util.GetWeightedArrayAverage(market.priceHistory, rollAvg.weights)
                             })
                         }
                         // Rolling average
                         else {
                             market.series.update({
-                                time : Date.now(),
+                                time : now,
                                 value: Util.GetArrayAverage(market.priceHistory)
                             })
                         }
@@ -268,7 +271,7 @@ const mouseUpHandler = function () {
                 // Updating graph with raw values
                 else {
                     market.series.update({
-                        time : Date.now(),
+                        time : now,
                         value: price
                     })
                 }
@@ -485,7 +488,6 @@ chart.subscribeCrosshairMove(param => {
 		toolTip.style.display = 'none';
 	} else {
 		toolTip.style.display = 'block';
-
         // Finding nearest ticker
         let nearestSeries = {series: null, distance: -1};
         param.seriesPrices.forEach((value, series) => {
@@ -500,6 +502,8 @@ chart.subscribeCrosshairMove(param => {
             return;
         }
 
+        
+
         // Generating tooltip
         const series = nearestSeries.series;
         const price = param.seriesPrices.get(series);
@@ -511,7 +515,7 @@ chart.subscribeCrosshairMove(param => {
 
         // Positioning tooltip
 		const coordinate = series.priceToCoordinate(price);
-		let shiftedCoordinate = param.point.x + 150;
+		let shiftedCoordinate = param.point.x;
 		if (coordinate === null) {
 			return;
 		}
