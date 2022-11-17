@@ -124,8 +124,6 @@ const generateCurrentMarketElement = (market) => {
 
 // // Initializes/Regenerates the current markets list
 const generateCurrentMarketsList = function() {
-    console.log("generating current market list");
-
     currentMarketHolder.innerHTML = "";
     [...currentMarkets.values()].forEach((market) => {
         marketElement = generateCurrentMarketElement(market);
