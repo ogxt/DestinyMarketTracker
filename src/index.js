@@ -7,10 +7,6 @@ const Config = require("./config");
 
 let currentMarkets = new Map();
 let allMarkets = new Map();
-let allRows = [];
-
-let currentMarketHolder = document.querySelector(".currentMarkets");
-let itemHolder = document.querySelector(".listContainer");
 
 const chart = LightweightCharts.createChart(document.querySelector(".tracker"),
     {
@@ -69,20 +65,94 @@ const mouseUpHandler = function () {
     document.removeEventListener('mouseup', mouseUpHandler);
 };
 
-(async()=>{
-    allMarkets = await Manifold.getDggMarkets();
-    let arr = [...allMarkets.values()];
-    arr.sort((a, b) => { 
-        if(a.name.toUpperCase() < b.name.toUpperCase())
-            return -1;
+// #region Selected Markets List
 
-        if(a.name.toUpperCase() > b.name.toUpperCase())
-            return 1;
+let currentMarketHolder = document.querySelector(".currentMarkets");
 
-        return 0;
+// Generates a current market list element
+const generateCurrentMarketElement = (market) => {
+    let marketHolder = document.createElement("li");
+    marketHolder.id = `market-holder-${market.id}`;// Blerch
+    marketHolder.dataset.id = market.id
+    marketHolder.className = "marketHolder";
+
+    let marketEl = document.createElement("a");
+    marketEl.innerHTML = market.name;
+    marketEl.target = "_blank"
+
+    marketEl.href = market.url;
+
+    let colorKey = document.createElement("span")
+    colorKey.className = "colorKey";
+    colorKey.style.backgroundColor = market.color.rgb().string();
+    
+    let removeButton = document.createElement("button");
+    removeButton.className = "RemoveButton stock-ticker";
+    removeButton.innerHTML = "X";
+
+    removeButton.onclick = () => {
+        removeStockFromChart(market);
+    }
+
+    marketHolder.appendChild(removeButton);
+    marketHolder.appendChild(marketEl)
+    marketHolder.appendChild(colorKey)
+    
+    marketEl.onmouseover  = () => {
+        if (market.series){
+            market.series.applyOptions({
+                topColor: 'rgba(0, 0, 0, 0)',
+                bottomColor: 'rgba(0, 0, 0, 0)',
+                lineColor: market.color.lighten(.25).saturate(.9).rgb().string(),
+                lineWidth: Config.lineWidth + (Config.lineWidth * .35),
+            })
+        }
+    }
+    marketEl.onmouseout  = () => {
+        if (market.series){
+            market.series.applyOptions({
+                topColor: 'rgba(0, 0, 0, 0)',
+                bottomColor: 'rgba(0, 0, 0, 0)',
+                lineColor: market.color.rgb().string(),
+                lineWidth: Config.lineWidth,
+            })  
+        }
+    }
+
+    return marketHolder;
+}
+
+// // Initializes/Regenerates the current markets list
+const generateCurrentMarketsList = function() {
+    currentMarketHolder.innerHTML = "";
+    [...currentMarkets.values()].forEach((market) => {
+        marketElement = generateCurrentMarketElement(market);
+        currentMarketHolder.appendChild(marketElement);
+    });
+    sortCurrentMarketsList();
+}
+
+// // Sorts current market list by price
+const sortCurrentMarketsList = function() {
+    let marketElements = [].slice.call(currentMarketHolder.children);
+    currentMarketHolder.innerHTML = "";
+
+    marketElements.sort((a,b) => {
+        return allMarkets.get(b.dataset.id).lastPrice - allMarkets.get(a.dataset.id).lastPrice
     });
 
-    arr.forEach(market => {
+    for(var i = 0; i < marketElements.length; i++){
+        currentMarketHolder.appendChild(marketElements[i]);
+    }
+}
+
+// #endregion
+
+// #region Stock Search
+const generateSearchList = (marketList) => {
+    let itemHolder = document.querySelector(".listContainer");
+
+    marketList.forEach(market => {
 
         let itemRow = document.createElement("div");
         itemRow.className = "itemRow stock-ticker";
@@ -134,100 +204,66 @@ const mouseUpHandler = function () {
         // end creator element
 
         itemHolder.appendChild(itemRow);
-        allRows.push(itemRow);
+    });
+}
+// #endregion
 
-        let removeButton = document.createElement("button");
-        removeButton.className = "RemoveButton stock-ticker";
-        removeButton.innerHTML = "X";
+(async()=>{
+    allMarkets = await Manifold.getDggMarkets();
+    let arr = [...allMarkets.values()];
+    arr.sort((a, b) => { 
+        if(a.name.toUpperCase() < b.name.toUpperCase())
+            return -1;
 
-        removeButton.onclick = () => {
-            removeStockFromChart(market);
-        }
-    
-        let marketHolder = document.createElement("li");
-        marketHolder.id = `market-holder-${market.id}`;// Blerch
-        marketHolder.dataset.id = market.id
-        marketHolder.className = "marketHolder";
-    
-        let marketEl = document.createElement("a");
-        marketEl.innerHTML = market.name;
-        marketEl.target = "_blank"
+        if(a.name.toUpperCase() > b.name.toUpperCase())
+            return 1;
 
-        marketEl.href = market.url;
-    
-        let colorKey = document.createElement("span")
-        colorKey.className = "colorKey";
-        colorKey.style.backgroundColor = market.color.rgb().string();
-        
-        marketHolder.appendChild(removeButton);
-        marketHolder.appendChild(marketEl)
-        marketHolder.appendChild(colorKey)
-    
-        currentMarketHolder.appendChild(marketHolder)
-        
-        marketEl.onmouseover  = () => {
-            if (market.series){
-                market.series.applyOptions({
-                    topColor: 'rgba(0, 0, 0, 0)',
-                    bottomColor: 'rgba(0, 0, 0, 0)',
-                    lineColor: market.color.lighten(.25).saturate(.9).rgb().string(),
-                    lineWidth: Config.lineWidth + (Config.lineWidth * .35),
-                })
-            }
-        }
-        marketEl.onmouseout  = () => {
-            if (market.series){
-                market.series.applyOptions({
-                    topColor: 'rgba(0, 0, 0, 0)',
-                    bottomColor: 'rgba(0, 0, 0, 0)',
-                    lineColor: market.color.rgb().string(),
-                    lineWidth: Config.lineWidth,
-                })  
-            }
-        }
+        return 0;
     });
 
+    // Generate stock elements for search list
+    generateSearchList(arr);
+
     function sortVolume() {
-        let newList = document.querySelector(".listContainer").cloneNode(false);
-        [].slice.call(document.querySelector(".listContainer").children).filter(row => !row.className.includes("itemRow")).forEach(item => {
-            newList.appendChild(item)
-        })
-        let MarketList = [].slice.call(document.querySelector(".listContainer").children).filter(row => row.className.includes("itemRow"));
-        MarketList.sort((a,b) => {
+        let stockElements = [].slice.call(document.querySelectorAll(".itemRow"));
+        let listContainer = document.querySelector(".listContainer");
+        
+        listContainer.innerHTML = "";
+
+        stockElements.sort((a,b) => {
             return allMarkets.get(b.dataset.marketID).volume - allMarkets.get(a.dataset.marketID).volume
         })
-        for(var i = 0; i < MarketList.length; i++){
-            newList.appendChild(MarketList[i]);
+        for(var i = 0; i < stockElements.length; i++){
+            listContainer.appendChild(stockElements[i]);
         }
-        document.querySelector(".listContainer").parentNode.replaceChild(newList, document.querySelector(".listContainer"))
     };
 
     sortVolume();
    
-    document.querySelector("input").addEventListener('keyup', (event) => {
-        if(event.target.value == ""){
-            let newList = document.querySelector(".listContainer").cloneNode(false);
-            [].slice.call(document.querySelector(".listContainer").children).filter(row => !row.className.includes("itemRow")).forEach(item => {
-                newList.appendChild(item)
-            })
-            for(var i = 0; i < allRows.length; i++){
-                newList.appendChild(allRows[i]);
-            }
-            document.querySelector(".listContainer").parentNode.replaceChild(newList, document.querySelector(".listContainer"))
-            sortVolume();
-        }else{
-            let results = fuzzysort.go(event.target.value, allRows, {
-                key : "dataset.name"
-            })
-            let newList = document.querySelector(".listContainer").cloneNode(false);
-            [].slice.call(document.querySelector(".listContainer").children).filter(row => !row.className.includes("itemRow")).forEach(item => {
-                newList.appendChild(item)
-            })
-            for(var i = 0; i < results.length; i++){
-                newList.appendChild(results[i].obj);
-            }
-            document.querySelector(".listContainer").parentNode.replaceChild(newList, document.querySelector(".listContainer"))
+    function filterStockList(searchParam) {
+        let stockElements = [].slice.call(document.querySelectorAll(".itemRow"));
+        if (searchParam == "")
+        {
+            stockElements.forEach((stockElement) => {
+                stockElement.style.display = "contents";
+            });
         }
+        else
+        {
+            stockElements.forEach((stockElement) => {
+                stockElement.style.display = "none";
+            });
+            let results = fuzzysort.go(searchParam, stockElements, {
+                key : "dataset.name"
+            });
+            for(var i = 0; i < results.length; i++){
+                results[i].obj.style.display = "contents";
+            }
+        }
+    }
+
+    document.querySelector("input").addEventListener('keyup', (event) => {
+        filterStockList(event.target.value);
     });
 
     setInterval(async () => {
@@ -279,16 +315,9 @@ const mouseUpHandler = function () {
                 allMarkets.set(market.id, market);
             }
         })
-        // sorting
-        let newList = document.querySelector(".currentMarkets").cloneNode(false);
-        let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
-        currentMarketList.sort((a,b) => {
-            return allMarkets.get(b.dataset.id).lastPrice - allMarkets.get(a.dataset.id).lastPrice
-        })
-        for(var i = 0; i < currentMarketList.length; i++){
-            newList.appendChild(currentMarketList[i]);
-        }
-        document.querySelector(".currentMarkets").parentNode.replaceChild(newList, document.querySelector(".currentMarkets"))
+        // Sort current markets
+        sortCurrentMarketsList();
+        
     }, Config.interval);    
 
     addTickerEventListener(); // Blerch
@@ -379,6 +408,8 @@ const removeStockFromChart = (market) => {
         marketHolder.style.display = "none";
     })
     chart.removeSeries(market.series);
+
+    generateCurrentMarketsList();
 }
 
 const addStockToChart = (market) => {
@@ -396,6 +427,8 @@ const addStockToChart = (market) => {
         symbol : market.name,
         title: market.title
     });
+
+    generateCurrentMarketsList();
 }
 
 
