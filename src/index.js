@@ -231,6 +231,9 @@ const mouseUpHandler = function () {
     });
 
     setInterval(async () => {
+
+        let now = Date.now();
+
         currentMarkets.forEach(async (market) => {
             if(market.series){
                 let price = await Manifold.getProbability(market.id);
@@ -240,7 +243,7 @@ const mouseUpHandler = function () {
                 // OPTIONAL - Use random price values for testing - configured in config.js
                 const rndPrice = Config.randomPriceTestMode;
                 if (rndPrice.active) {
-                    const sinceLastInterval = Date.now() % rndPrice.changeInterval;
+                    const sinceLastInterval = now % rndPrice.changeInterval;
                     const shouldRandomisePrice = sinceLastInterval - Config.interval <= 0;
                     price = shouldRandomisePrice ? Util.GetRandomInRange(rndPrice.minPrice, rndPrice.maxPrice) : market.lastPrice;
                 }
@@ -252,14 +255,14 @@ const mouseUpHandler = function () {
                         // Weighted rolling average
                         if (rollAvg.useWeightedAverage) {
                             market.series.update({
-                                time : Date.now(),
+                                time : now,
                                 value: Util.GetWeightedArrayAverage(market.priceHistory, rollAvg.weights)
                             })
                         }
                         // Rolling average
                         else {
                             market.series.update({
-                                time : Date.now(),
+                                time : now,
                                 value: Util.GetArrayAverage(market.priceHistory)
                             })
                         }
@@ -268,7 +271,7 @@ const mouseUpHandler = function () {
                 // Updating graph with raw values
                 else {
                     market.series.update({
-                        time : Date.now(),
+                        time : now,
                         value: price
                     })
                 }
@@ -296,6 +299,35 @@ const mouseUpHandler = function () {
         return b.volume - a.volume
     })); // Blerch
 })();
+
+const updateMarkets = async() => {
+
+    currentTime = Date.now();
+
+    // Update tickers
+    currentMarkets.forEach(async (market) => {
+        if(market.series){
+            let price = await Manifold.getProbability(market.id);
+            market.price = price;
+            market.series.update({
+                time : currentTime,
+                value : price
+            })
+            allMarkets.set(market.id, market)
+        }
+    })
+
+    // Sort market list by value
+    let newList = document.querySelector(".currentMarkets").cloneNode(false);
+    let currentMarketList = [].slice.call(document.querySelector(".currentMarkets").children);
+    currentMarketList.sort((a,b) => {
+        return allMarkets.get(b.dataset.id).price - allMarkets.get(a.dataset.id).price
+    })
+    for(var i = 0; i < currentMarketList.length; i++){
+        newList.appendChild(currentMarketList[i]);
+    }
+    document.querySelector(".currentMarkets").parentNode.replaceChild(newList, document.querySelector(".currentMarkets"))
+};
 
 // #region Blerch
 
@@ -426,9 +458,88 @@ const addTickerEventListener = () => {
     });
 }
 
-
 // #endregion
 
+// #region Tooltip
+
+const container = document.querySelector(".tracker")
+
+const toolTipWidth = 80;
+const toolTipHeight = 80;
+const toolTipMargin = 15;
+
+// Create and style the tooltip html element
+const toolTip = document.createElement('div');
+toolTip.style = `width: 96px; height: 80px; position: absolute; display: none; padding: 8px; box-sizing: border-box; font-size: 12px; text-align: left; z-index: 1000; top: 12px; left: 12px; pointer-events: none; border: 1px solid; border-radius: 2px;font-family: 'Trebuchet MS', Roboto, Ubuntu, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;`;
+toolTip.style.background = 'white';
+toolTip.style.color = 'black';
+toolTip.style.borderColor = '#2962FF';
+container.appendChild(toolTip);
+
+chart.subscribeCrosshairMove(param => {
+	if (
+		param.point === undefined ||
+		!param.time ||
+		param.point.x < 0 ||
+		param.point.x > container.clientWidth ||
+		param.point.y < 0 ||
+		param.point.y > container.clientHeight
+	) {
+		toolTip.style.display = 'none';
+	} else {
+		toolTip.style.display = 'block';
+        // Finding nearest ticker
+        let nearestSeries = {series: null, distance: -1};
+        param.seriesPrices.forEach((value, series) => {
+            const distance = Math.abs(param.point.y - series.priceToCoordinate(value));
+            if (nearestSeries.distance == -1 || distance < nearestSeries.distance)
+            {
+                nearestSeries = {series: series, distance: distance};
+            }
+        });
+        if (nearestSeries.series == null)
+        {
+            return;
+        }
+
+        
+
+        // Generating tooltip
+        const series = nearestSeries.series;
+        const price = param.seriesPrices.get(series);
+
+		toolTip.innerHTML = `<div style="color: ${'#2962FF'}">${series.options().title}</div><div style="font-size: 24px; margin: 4px 0px; color: ${'black'}">
+			${Math.round(100 * price) / 100}
+			</div><div style="color: ${'black'}">
+			</div>`;
+
+        // Positioning tooltip
+		const coordinate = series.priceToCoordinate(price);
+		let shiftedCoordinate = param.point.x;
+		if (coordinate === null) {
+			return;
+		}
+		shiftedCoordinate = Math.max(
+			0,
+			Math.min(container.clientWidth - toolTipWidth, shiftedCoordinate)
+		);
+        shiftedCoordinate = shiftedCoordinate;
+		const coordinateY =
+			coordinate - toolTipHeight - toolTipMargin > 0
+				? coordinate - toolTipHeight - toolTipMargin
+				: Math.max(
+					0,
+					Math.min(
+						container.clientHeight - toolTipHeight - toolTipMargin,
+						coordinate + toolTipMargin
+					)
+				);
+		toolTip.style.left = shiftedCoordinate + 'px';
+		toolTip.style.top = coordinateY + 'px';
+	}
+});
+
+// #endregion
 window.closeSelectionMenu = () => {
     document.querySelector(".selection").style.display = "none";
     document.querySelector(".overlay").style.backgroundColor = "rgba(0, 0, 0, 0)"
